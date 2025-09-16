@@ -36,3 +36,6 @@ frontend/.next/
 frontend/out/
 frontend/.env*.local
 frontend/next-env.d.ts
+
+# VSCode & Others
+.vscode/
