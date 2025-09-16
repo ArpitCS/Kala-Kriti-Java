@@ -1,0 +1,38 @@
+# Compiled Java class files
+*.class
+
+# Log files
+*.log
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Build output
+/target/
+/build/
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDE configuration files
+.idea/
+*.iml
+*.iws
+.project
+.classpath
+.settings/
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# Frontend
+frontend/node_modules
+frontend/.next/
+frontend/out/
+frontend/.env*.local
+frontend/next-env.d.ts
