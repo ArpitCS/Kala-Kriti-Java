@@ -36,6 +36,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public Iterable<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }

@@ -6,7 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.kalakriti.backend.dto.UserDto;
+import com.kalakriti.backend.entity.User;
+import com.kalakriti.backend.service.UserService;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -16,11 +21,22 @@ public class AdminController {
     @Autowired
     private ShoppingService shoppingService;
 
+    @Autowired
+    private UserService userService;
+
     @GetMapping("/orders")
     public ResponseEntity<List<Order>> getAllOrders() {
-        // This would typically require admin authorization
-        // For now, returning all orders - in production, add security checks
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        Iterable<User> users = userService.getAllUsers();
+        List<UserDto> result = new ArrayList<>();
+        for (User u : users) {
+            result.add(new UserDto(u.getId(), u.getUsername(), u.getEmail(), u.getUserType()));
+        }
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/orders/{orderId}/status")
