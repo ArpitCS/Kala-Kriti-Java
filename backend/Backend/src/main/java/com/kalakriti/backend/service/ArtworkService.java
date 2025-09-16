@@ -5,6 +5,7 @@ import com.kalakriti.backend.entity.Artwork;
 import com.kalakriti.backend.entity.ArtistProfile;
 import com.kalakriti.backend.repository.ArtworkRepository;
 import com.kalakriti.backend.repository.ArtistRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -19,17 +20,16 @@ public class ArtworkService {
     @Autowired
     private ArtistRepository artistRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     public Artwork createArtwork(ArtworkDto artworkDto, Long artistId) {
         Optional<ArtistProfile> artist = artistRepository.findById(artistId);
         if (artist.isEmpty()) {
             throw new RuntimeException("Artist not found");
         }
 
-        Artwork artwork = new Artwork();
-        artwork.setTitle(artworkDto.getTitle());
-        artwork.setDescription(artworkDto.getDescription());
-        artwork.setPrice(artworkDto.getPrice());
-        artwork.setImageUrl(artworkDto.getImageUrl());
+        Artwork artwork = modelMapper.map(artworkDto, Artwork.class);
         artwork.setCreatedAt(LocalDateTime.now());
         artwork.setArtist(artist.get());
 
@@ -64,11 +64,8 @@ public class ArtworkService {
         }
 
         Artwork artwork = existingArtwork.get();
-        artwork.setTitle(artworkDto.getTitle());
-        artwork.setDescription(artworkDto.getDescription());
-        artwork.setPrice(artworkDto.getPrice());
-        artwork.setImageUrl(artworkDto.getImageUrl());
-
+        modelMapper.map(artworkDto, artwork);
+        // artist and createdAt are not updated here
         return artworkRepository.save(artwork);
     }
 

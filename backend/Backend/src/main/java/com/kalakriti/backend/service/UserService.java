@@ -3,6 +3,7 @@ package com.kalakriti.backend.service;
 import com.kalakriti.backend.dto.UserRegistrationDto;
 import com.kalakriti.backend.entity.User;
 import com.kalakriti.backend.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,9 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     public User registerUser(UserRegistrationDto registrationDto) {
         if (userRepository.existsByUsername(registrationDto.getUsername())) {
             throw new RuntimeException("Username already exists");
@@ -27,9 +31,7 @@ public class UserService {
             throw new RuntimeException("Email already exists");
         }
 
-        User user = new User();
-        user.setUsername(registrationDto.getUsername());
-        user.setEmail(registrationDto.getEmail());
+        User user = modelMapper.map(registrationDto, User.class);
         user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
         user.setUserType(User.UserType.valueOf(registrationDto.getUserType()));
 

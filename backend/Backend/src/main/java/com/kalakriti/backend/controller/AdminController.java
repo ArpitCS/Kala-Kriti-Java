@@ -12,6 +12,7 @@ import java.util.List;
 import com.kalakriti.backend.dto.UserDto;
 import com.kalakriti.backend.entity.User;
 import com.kalakriti.backend.service.UserService;
+import org.modelmapper.ModelMapper;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -24,6 +25,9 @@ public class AdminController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @GetMapping("/orders")
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok().build();
@@ -34,7 +38,7 @@ public class AdminController {
         Iterable<User> users = userService.getAllUsers();
         List<UserDto> result = new ArrayList<>();
         for (User u : users) {
-            result.add(new UserDto(u.getId(), u.getUsername(), u.getEmail(), u.getUserType()));
+            result.add(modelMapper.map(u, UserDto.class));
         }
         return ResponseEntity.ok(result);
     }
