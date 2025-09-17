@@ -2,55 +2,12 @@ package com.kalakriti.backend.service;
 
 import com.kalakriti.backend.dto.UserRegistrationDto;
 import com.kalakriti.backend.entity.User;
-import com.kalakriti.backend.repository.UserRepository;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
-@Service
-public class UserService {
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private ModelMapper modelMapper;
-
-    public User registerUser(UserRegistrationDto registrationDto) {
-        if (userRepository.existsByUsername(registrationDto.getUsername())) {
-            throw new RuntimeException("Username already exists");
-        }
-
-        if (userRepository.existsByEmail(registrationDto.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        User user = modelMapper.map(registrationDto, User.class);
-        user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
-        user.setUserType(User.UserType.valueOf(registrationDto.getUserType()));
-
-        return userRepository.save(user);
-    }
-
-    public Iterable<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
-
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
-    }
+public interface UserService {
+    User registerUser(UserRegistrationDto registrationDto);
+    Iterable<User> getAllUsers();
+    Optional<User> findByUsername(String username);
+    Optional<User> findByEmail(String email);
+    Optional<User> findById(Long id);
 }
