@@ -1,5 +1,6 @@
 package com.kalakriti.backend.dto;
 
+import com.kalakriti.backend.entity.Order;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,10 +12,13 @@ import java.util.List;
 @AllArgsConstructor
 public class OrderDto {
     private Long id;
-    private String userUsername;
+    private Long userId;
+    private String username;
+    private String email;
+    private String userType;
     private List<OrderItemDto> orderItems;
     private Double totalAmount;
-    private String status;
+    private Order.Status status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

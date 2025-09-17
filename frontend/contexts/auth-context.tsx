@@ -53,6 +53,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Backend returns a string; we set the actual user from users endpoint
       setUser(userObj)
       localStorage.setItem("kala-kriti-user", JSON.stringify(userObj))
+      // Store base64 credentials for Basic Auth
+      localStorage.setItem("kala-kriti-credentials", btoa(`${userObj.username}:${password}`))
       return true
     } catch (error) {
       console.error("Login error:", error)
@@ -78,6 +80,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userObj: User = await userRes.json()
       setUser(userObj)
       localStorage.setItem("kala-kriti-user", JSON.stringify(userObj))
+      // Store base64 credentials for Basic Auth
+      localStorage.setItem("kala-kriti-credentials", btoa(`${userObj.username}:${password}`))
       return true
     } catch (error) {
       console.error("Registration error:", error)
@@ -99,6 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUser(null)
       localStorage.removeItem("kala-kriti-user")
+      localStorage.removeItem("kala-kriti-credentials")
     }
   }
 

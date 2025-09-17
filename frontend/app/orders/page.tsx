@@ -117,7 +117,7 @@ export default function OrdersPage() {
 
                       <div className="flex justify-between items-center">
                         <div className="text-sm text-muted-foreground">
-                          Items: {order.orderItems.map((item) => item.artwork.title).join(", ")}
+                          Items: {order.orderItems.map((item) => item.artworkTitle).join(", ")}
                         </div>
                         <Button variant="outline" asChild>
                           <Link href={`/orders/${order.id}`}>View Details</Link>

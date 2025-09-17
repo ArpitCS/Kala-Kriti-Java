@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, Package, Calendar, DollarSign, User, Mail } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { authenticatedFetch } from "@/lib/authenticated-fetch"
 import type { Order } from "@/types"
 
 export default function AdminOrderDetailPage() {
@@ -31,7 +32,7 @@ export default function AdminOrderDetailPage() {
 
   const fetchOrder = async (orderId: string) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/shopping/order/${orderId}`)
+      const response = await authenticatedFetch(`http://localhost:8080/api/admin/orders/${orderId}`)
       if (response.ok) {
         const data = await response.json()
         setOrder(data)
@@ -194,12 +195,12 @@ export default function AdminOrderDetailPage() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{order.user.username}</span>
-                        <Badge variant="outline">{order.user.userType}</Badge>
+                        <span className="font-medium">{order.username}</span>
+                        <Badge variant="outline">{order.userType}</Badge>
                       </div>
                       <div className="flex items-center gap-2">
                         <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span>{order.user.email}</span>
+                        <span>{order.email}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -215,10 +216,10 @@ export default function AdminOrderDetailPage() {
                       <div key={item.id}>
                         <div className="flex gap-4">
                           <div className="w-16 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
-                            {item.artwork.imageUrl ? (
+                            {item.artworkImageUrl ? (
                               <Image
-                                src={item.artwork.imageUrl || "/placeholder.svg"}
-                                alt={item.artwork.title}
+                                src={item.artworkImageUrl || "/placeholder.svg"}
+                                alt={item.artworkTitle}
                                 width={64}
                                 height={64}
                                 className="w-full h-full object-cover"
@@ -231,14 +232,14 @@ export default function AdminOrderDetailPage() {
                           </div>
 
                           <div className="flex-1">
-                            <Link href={`/artworks/${item.artwork.id}`}>
+                            <Link href={`/artworks/${item.artworkId}`}>
                               <h3 className="font-semibold hover:text-primary transition-colors">
-                                {item.artwork.title}
+                                {item.artworkTitle}
                               </h3>
                             </Link>
                             <p className="text-sm text-muted-foreground flex items-center gap-1">
                               <User className="h-3 w-3" />
-                              by {item.artwork.artist.user.username}
+                              by {item.artistName}
                             </p>
                             <div className="flex items-center justify-between mt-2">
                               <span className="text-sm">Quantity: {item.quantity}</span>
@@ -263,7 +264,7 @@ export default function AdminOrderDetailPage() {
                     {order.orderItems.map((item) => (
                       <div key={item.id} className="flex justify-between text-sm">
                         <span>
-                          {item.artwork.title} × {item.quantity}
+                          {item.artworkTitle} × {item.quantity}
                         </span>
                         <span>${(item.price * item.quantity).toFixed(2)}</span>
                       </div>

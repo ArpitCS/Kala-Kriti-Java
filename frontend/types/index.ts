@@ -34,7 +34,10 @@ export interface CartItem {
 
 export interface Order {
   id: number
-  user: User
+  userId: number
+  username: string
+  email: string
+  userType: string
   orderItems: OrderItem[]
   totalAmount: number
   status: "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED"
@@ -44,8 +47,14 @@ export interface Order {
 
 export interface OrderItem {
   id: number
-  order: Order
-  artwork: Artwork
+  orderId: number
+  artworkId: number
+  artworkTitle: string
+  artworkImageUrl?: string
+  artworkPrice: number
+  artistName: string
+  artistId: number
   quantity: number
   price: number
+  totalPrice: number
 }

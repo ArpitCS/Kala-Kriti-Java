@@ -6,6 +6,7 @@ import com.kalakriti.backend.entity.User;
 import com.kalakriti.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,6 +16,9 @@ public class AuthController {
     
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto registrationDto) {
@@ -29,10 +33,14 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
         try {
-            // Basic login validation - in production use JWT or session management
-            var user = userService.findByUsername(loginDto.getUsername());
-            if (user.isPresent()) {
-                return ResponseEntity.ok("Login successful");
+            var userOpt = userService.findByUsername(loginDto.getUsername());
+            if (userOpt.isPresent()) {
+                var user = userOpt.get();
+                if (passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
+                    return ResponseEntity.ok("Login successful");
+                } else {
+                    return ResponseEntity.badRequest().body("Invalid credentials");
+                }
             } else {
                 return ResponseEntity.badRequest().body("Invalid credentials");
             }

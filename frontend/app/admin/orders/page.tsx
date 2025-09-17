@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Search, Filter, Package, Calendar, DollarSign, User } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { authenticatedFetch } from "@/lib/authenticated-fetch"
 import type { Order } from "@/types"
 
 export default function AdminOrdersPage() {
@@ -32,7 +33,7 @@ export default function AdminOrdersPage() {
 
   const loadOrders = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/admin/orders")
+      const response = await authenticatedFetch("http://localhost:8080/api/admin/orders")
       if (response.ok) {
         const data = await response.json()
         setOrders(data)
@@ -57,8 +58,8 @@ export default function AdminOrdersPage() {
       filtered = filtered.filter(
         (order) =>
           order.id.toString().includes(searchQuery) ||
-          order.user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          order.user.email.toLowerCase().includes(searchQuery.toLowerCase()),
+          order.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          order.email.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     }
 
@@ -67,31 +68,12 @@ export default function AdminOrdersPage() {
 
   const updateOrderStatus = async (orderId: number, newStatus: string) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/admin/orders/${orderId}/status?status=${newStatus}`, {
-        method: "PUT",
-      })
-
+      const response = await authenticatedFetch(`http://localhost:8080/api/admin/orders/${orderId}/status?status=${newStatus}`)
       if (response.ok) {
-        setOrders((prev) =>
-          prev.map((order) => (order.id === orderId ? { ...order, status: newStatus as any } : order)),
-        )
-        toast({
-          title: "Order updated",
-          description: `Order #${orderId} status changed to ${newStatus}`,
-        })
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to update order status",
-          variant: "destructive",
-        })
+        loadOrders()
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "An error occurred while updating the order",
-        variant: "destructive",
-      })
+      console.error("Error updating order status:", error)
     }
   }
 
@@ -205,7 +187,7 @@ export default function AdminOrdersPage() {
                             <div className="flex items-center gap-2">
                               <User className="h-4 w-4" />
                               <span>
-                                {order.user.username} ({order.user.email})
+                                {order.username} ({order.email})
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -219,7 +201,7 @@ export default function AdminOrdersPage() {
                           </div>
 
                           <div className="mt-2 text-sm text-muted-foreground">
-                            Items: {order.orderItems.map((item) => item.artwork.title).join(", ")}
+                            Items: {order.orderItems.map((item) => item.artworkTitle).join(", ")}
                           </div>
                         </div>
 

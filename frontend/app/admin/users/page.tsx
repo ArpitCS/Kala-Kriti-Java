@@ -9,6 +9,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { authenticatedFetch } from "@/lib/authenticated-fetch"
 
 interface UserRow {
   id: number
@@ -31,13 +32,11 @@ export default function AdminUsersPage() {
     try {
       setLoading(true)
       setError(null)
-      // Assuming backend endpoint exists; adjust if path differs
-      const res = await fetch("http://localhost:8080/api/admin/users")
+      const res = await authenticatedFetch("http://localhost:8080/api/admin/users")
       if (!res.ok) {
         throw new Error(`Failed to fetch users (${res.status})`)
       }
       const data = await res.json()
-      console.log("Fetched users:", data)
       setUsers(data)
     } catch (err: any) {
       console.error("Error fetching users:", err)

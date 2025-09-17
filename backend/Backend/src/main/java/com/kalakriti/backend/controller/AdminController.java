@@ -1,5 +1,7 @@
 package com.kalakriti.backend.controller;
 
+import com.kalakriti.backend.config.ModelMapperConfig;
+import com.kalakriti.backend.dto.OrderDto;
 import com.kalakriti.backend.entity.Order;
 import com.kalakriti.backend.service.ShoppingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +29,15 @@ public class AdminController {
 
     @Autowired
     private ModelMapper modelMapper;
+    
+    @Autowired
+    private ModelMapperConfig.EntityMapper entityMapper;
 
     @GetMapping("/orders")
-    public ResponseEntity<List<Order>> getAllOrders() {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<List<OrderDto>> getAllOrders() {
+        List<Order> orders = shoppingService.getAllOrders();
+        List<OrderDto> orderDtos = entityMapper.toOrderDtoList(orders);
+        return ResponseEntity.ok(orderDtos);
     }
 
     @GetMapping("/users")
@@ -49,7 +56,8 @@ public class AdminController {
         try {
             Order.Status orderStatus = Order.Status.valueOf(status.toUpperCase());
             Order order = shoppingService.updateOrderStatus(orderId, orderStatus);
-            return ResponseEntity.ok(order);
+            OrderDto orderDto = entityMapper.toOrderDto(order);
+            return ResponseEntity.ok(orderDto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

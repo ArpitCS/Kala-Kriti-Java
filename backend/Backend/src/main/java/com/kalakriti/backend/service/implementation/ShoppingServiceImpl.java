@@ -108,6 +108,11 @@ public class ShoppingServiceImpl implements ShoppingService {
     public List<Order> getUserOrders(Long userId) {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
+    
+    @Override
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
 
     @Override
     public Optional<Order> getOrderById(Long orderId) {

@@ -1,5 +1,7 @@
 package com.kalakriti.backend.controller;
 
+import com.kalakriti.backend.config.ModelMapperConfig;
+import com.kalakriti.backend.dto.OrderDto;
 import com.kalakriti.backend.entity.CartItem;
 import com.kalakriti.backend.entity.Order;
 import com.kalakriti.backend.service.ShoppingService;
@@ -16,6 +18,9 @@ public class ShoppingController {
     
     @Autowired
     private ShoppingService shoppingService;
+    
+    @Autowired
+    private ModelMapperConfig.EntityMapper entityMapper;
     
     // Cart endpoints
     @PostMapping("/cart/add")
@@ -61,22 +66,29 @@ public class ShoppingController {
     public ResponseEntity<?> createOrder(@PathVariable Long userId) {
         try {
             Order order = shoppingService.createOrder(userId);
-            return ResponseEntity.ok(order);
+            OrderDto orderDto = entityMapper.toOrderDto(order);
+            return ResponseEntity.ok(orderDto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
     
     @GetMapping("/orders/{userId}")
-    public ResponseEntity<List<Order>> getUserOrders(@PathVariable Long userId) {
+    public ResponseEntity<List<OrderDto>> getUserOrders(@PathVariable Long userId) {
         List<Order> orders = shoppingService.getUserOrders(userId);
-        return ResponseEntity.ok(orders);
+        List<OrderDto> orderDtos = entityMapper.toOrderDtoList(orders);
+        return ResponseEntity.ok(orderDtos);
     }
     
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long orderId) {
+    public ResponseEntity<OrderDto> getOrderById(@PathVariable Long orderId) {
         Optional<Order> order = shoppingService.getOrderById(orderId);
-        return order.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        if (order.isPresent()) {
+            OrderDto orderDto = entityMapper.toOrderDto(order.get());
+            return ResponseEntity.ok(orderDto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
     
     @PutMapping("/order/{orderId}/status")
@@ -85,7 +97,8 @@ public class ShoppingController {
         try {
             Order.Status orderStatus = Order.Status.valueOf(status.toUpperCase());
             Order order = shoppingService.updateOrderStatus(orderId, orderStatus);
-            return ResponseEntity.ok(order);
+            OrderDto orderDto = entityMapper.toOrderDto(order);
+            return ResponseEntity.ok(orderDto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
