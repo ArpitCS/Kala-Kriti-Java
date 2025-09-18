@@ -2,7 +2,6 @@ package com.kalakriti.backend.controller;
 
 import com.kalakriti.backend.dto.LoginDto;
 import com.kalakriti.backend.dto.UserRegistrationDto;
-import com.kalakriti.backend.entity.User;
 import com.kalakriti.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto registrationDto) {
         try {
-            User user = userService.registerUser(registrationDto);
+            userService.registerUser(registrationDto);
             return ResponseEntity.ok("User registered successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

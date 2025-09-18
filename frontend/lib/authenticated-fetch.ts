@@ -1,6 +1,4 @@
 export async function authenticatedFetch(url: string, options: RequestInit = {}) {
-  // Do NOT send Authorization for any /api/admin/ endpoint
-  const isAdminEndpoint = url.includes("/api/admin/")
 
   // Normalize headers to a plain object
   let headers: Record<string, string> = {}
@@ -18,10 +16,8 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
     }
   }
 
-  if (!isAdminEndpoint) {
-    const credentials = localStorage.getItem("kala-kriti-credentials")
-    if (credentials) headers["Authorization"] = `Basic ${credentials}`
-  }
+  const credentials = typeof window !== "undefined" ? localStorage.getItem("kala-kriti-credentials") : null
+  if (credentials) headers["Authorization"] = `Basic ${credentials}`
 
   return fetch(url, { ...options, headers })
 }
