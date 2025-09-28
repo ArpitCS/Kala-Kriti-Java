@@ -1,0 +1,4 @@
+com/kalakriti/gateway/util/JwtUtil.class
+com/kalakriti/gateway/ApiGatewayApplication.class
+com/kalakriti/gateway/filter/JwtAuthenticationFilter.class
+com/kalakriti/gateway/config/SecurityConfig.class

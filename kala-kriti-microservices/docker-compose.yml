@@ -1,0 +1,131 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: kala-kriti-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - kala-kriti-network
+
+  discovery-service:
+    build: ./discovery-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8761:8761"
+    networks:
+      - kala-kriti-network
+
+  config-service:
+    build: ./config-service
+    depends_on:
+      - discovery-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+    ports:
+      - "8888:8888"
+    networks:
+      - kala-kriti-network
+
+  api-gateway:
+    build: ./api-gateway
+    depends_on:
+      - discovery-service
+      - config-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      USER_SERVICE_URL: http://user-service:8081
+      PRODUCT_SERVICE_URL: http://product-service:8082
+      ORDER_SERVICE_URL: http://order-service:8083
+      PAYMENT_SERVICE_URL: http://payment-service:8084
+    ports:
+      - "8080:8080"
+    networks:
+      - kala-kriti-network
+
+  user-service:
+    build: ./user-service
+    depends_on:
+      - postgres
+      - discovery-service
+      - config-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      USER_DB_URL: jdbc:postgresql://postgres:5432/kala_kriti_users
+      USER_DB_USERNAME: postgres
+      USER_DB_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+    ports:
+      - "8081:8081"
+    networks:
+      - kala-kriti-network
+
+  product-service:
+    build: ./product-service
+    depends_on:
+      - postgres
+      - discovery-service
+      - config-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      PRODUCT_DB_URL: jdbc:postgresql://postgres:5432/kala_kriti_products
+      PRODUCT_DB_USERNAME: postgres
+      PRODUCT_DB_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+    ports:
+      - "8082:8082"
+    networks:
+      - kala-kriti-network
+
+  order-service:
+    build: ./order-service
+    depends_on:
+      - postgres
+      - discovery-service
+      - config-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      ORDER_DB_URL: jdbc:postgresql://postgres:5432/kala_kriti_orders
+      ORDER_DB_USERNAME: postgres
+      ORDER_DB_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+    ports:
+      - "8083:8083"
+    networks:
+      - kala-kriti-network
+
+  payment-service:
+    build: ./payment-service
+    depends_on:
+      - postgres
+      - discovery-service
+      - config-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      PAYMENT_DB_URL: jdbc:postgresql://postgres:5432/kala_kriti_payments
+      PAYMENT_DB_USERNAME: postgres
+      PAYMENT_DB_PASSWORD: password
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+    ports:
+      - "8084:8084"
+    networks:
+      - kala-kriti-network
+
+volumes:
+  postgres_data:
+
+networks:
+  kala-kriti-network:
+    driver: bridge

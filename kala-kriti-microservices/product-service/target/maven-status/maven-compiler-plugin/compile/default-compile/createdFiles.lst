@@ -1,0 +1,10 @@
+com/kalakriti/product/repository/ProductRepository.class
+com/kalakriti/product/service/CategoryService.class
+com/kalakriti/product/controller/CategoryController.class
+com/kalakriti/product/model/Product.class
+com/kalakriti/product/ProductServiceApplication.class
+com/kalakriti/product/model/Category.class
+com/kalakriti/product/service/ProductService.class
+com/kalakriti/product/controller/ProductController.class
+com/kalakriti/product/repository/CategoryRepository.class
+com/kalakriti/product/model/Product$ProductStatus.class
