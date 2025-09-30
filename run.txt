@@ -1,0 +1,20 @@
+cd kala-kriti-microservices/config-service && mvn spring-boot:run 
+cd kala-kriti-microservices/discovery-service && mvn spring-boot:run 
+cd kala-kriti-microservices/user-service && mvn spring-boot:run 
+cd kala-kriti-microservices/product-service && mvn spring-boot:run 
+cd kala-kriti-microservices/order-service && mvn spring-boot:run 
+cd kala-kriti-microservices/payment-service && mvn spring-boot:run 
+cd kala-kriti-microservices/api-gateway && mvn spring-boot:run 
+
+curl -X POST http://localhost:8080/api/products \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQVJUSVNUIiwic3ViIjoiYXJwaXQtYXJ0aXN0IiwiaWF0IjoxNzU5MTYxNDUwLCJleHAiOjE3NTkyNDc4NTB9.GOLW2IteZPLmGcbmC3qL-MdZV3ubntw2ovTIyO-gDnI" \
+  -d '{
+  "title": "Abstract Painting",
+  "description": "Beautiful abstract art piece",
+  "price": 5000.00,
+  "stock": 1,
+  "artistId": 1,
+  "categoryId": 1,
+  "imageUrl": "https://cdn.example.com/art/abstract-123.jpg"
+}'

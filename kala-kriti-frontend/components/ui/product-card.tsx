@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Heart, ShoppingBag } from "lucide-react"
-import type { Product } from "@/lib/api"
+import type { Product, Category } from "@/lib/api"
+import { api } from "@/lib/api"
+import { useEffect, useState } from "react"
 
 interface ProductCardProps {
   product: Product
@@ -16,6 +18,33 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart, onToggleFavorite, isFavorite = false }: ProductCardProps) {
+  const [categories, setCategories] = useState<Category[]>([])
+  const [artistName, setArtistName] = useState<string>(product.artistName || "")
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const response = await api.getCategories()
+      if (response.data) setCategories(response.data)
+    }
+    fetchCategories()
+  }, [])
+
+  useEffect(() => {
+    // Fallback: fetch artist name if missing
+    const fetchArtist = async () => {
+      if (!artistName && product.artistId) {
+        const res = await api.getUserById(product.artistId)
+        if (res.data) {
+          const fullName = [res.data.firstName, res.data.lastName].filter(Boolean).join(" ")
+          setArtistName(fullName || res.data.username)
+        }
+      }
+    }
+    fetchArtist()
+  }, [artistName, product.artistId])
+
+  // Support both product.categoryId (new) and product.category.id (legacy)
+  const categoryId = (product as any).categoryId ?? (product.category && product.category.id)
+  const categoryName = categories.find((cat) => cat.id === Number(categoryId))?.name || "Unknown"
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -66,14 +95,14 @@ export function ProductCard({ product, onAddToCart, onToggleFavorite, isFavorite
           <Link href={`/products/${product.id}`}>
             <h3 className="font-medium text-sm line-clamp-2 hover:text-primary transition-colors">{product.title}</h3>
           </Link>
-          <p className="text-xs text-muted-foreground">by {product.artistName}</p>
+          <p className="text-xs text-muted-foreground">by {artistName || "Unknown Artist"}</p>
         </div>
 
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <p className="font-semibold text-lg">{formatPrice(product.price)}</p>
             <Badge variant="outline" className="text-xs">
-              {product.category.name}
+              {categoryName}
             </Badge>
           </div>
 

@@ -27,7 +27,7 @@ export default function CategoriesPage() {
       if (categoriesResponse.data && productsResponse.data) {
         const categoriesWithCount = categoriesResponse.data.map((category) => ({
           ...category,
-          productCount: productsResponse.data!.filter((product) => product.category.id === category.id).length,
+          productCount: productsResponse.data!.filter((product) => ((product as any).categoryId ?? (product.category && product.category.id)) === category.id).length,
         }))
         setCategories(categoriesWithCount)
       }

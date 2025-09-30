@@ -10,9 +10,20 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { ShoppingBag, Minus, Plus, X, ArrowRight, ArrowLeft } from "lucide-react"
 import { useCart } from "@/lib/cart"
+import { useEffect, useState } from "react"
+import type { Category } from "@/lib/api"
+import { apiClient } from "@/lib/api"
 
 export default function CartPage() {
   const { items, totalItems, totalPrice, updateQuantity, removeItem, clearCart } = useCart()
+  const [categories, setCategories] = useState<Category[]>([])
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const response = await apiClient.getCategories()
+      if (response.data) setCategories(response.data)
+    }
+    fetchCategories()
+  }, [])
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -95,7 +106,7 @@ export default function CartPage() {
                             </Link>
                             <p className="text-sm text-muted-foreground">by {item.product.artistName}</p>
                             <Badge variant="outline" className="mt-1">
-                              {item.product.category.name}
+                              {categories.find((cat) => cat.id === ((item.product as any).categoryId ?? (item.product.category && item.product.category.id)))?.name || "Unknown"}
                             </Badge>
                           </div>
 

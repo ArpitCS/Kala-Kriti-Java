@@ -155,6 +155,50 @@ class ApiClient {
     }
   }
 
+  // Normalizers
+  private normalizeProduct(raw: any): Product {
+    if (!raw) {
+      // Construct an obviously empty product to avoid runtime undefineds
+      return {
+        id: 0,
+        title: "",
+        description: "",
+        price: 0,
+        stock: 0,
+        artistId: 0,
+        artistName: "",
+        category: { id: (raw?.categoryId as number) ?? 0, name: raw?.category?.name || "" },
+        imageUrl: raw?.imageUrl || undefined,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+    }
+
+    const title = raw.title ?? raw.name ?? ""
+    const stock = raw.stock ?? raw.stockQuantity ?? 0
+    const artistId = raw.artistId ?? raw.artist?.id ?? 0
+    const artistName = raw.artistName ?? raw.artist?.name ?? raw.artist?.username ?? ""
+    const categoryId = raw.categoryId ?? raw.category?.id ?? 0
+    const categoryName = raw.category?.name ?? raw.categoryName ?? ""
+
+    return {
+      id: Number(raw.id ?? 0),
+      title,
+      description: raw.description ?? "",
+      price: Number(raw.price ?? 0),
+      stock: Number(stock ?? 0),
+      artistId: Number(artistId ?? 0),
+      artistName,
+      category: {
+        id: Number(categoryId ?? 0),
+        name: String(categoryName ?? ""),
+      },
+      imageUrl: raw.imageUrl ?? undefined,
+      createdAt: raw.createdAt ?? new Date().toISOString(),
+      updatedAt: raw.updatedAt ?? raw.createdAt ?? new Date().toISOString(),
+    }
+  }
+
   private normaliseListResponse<T>(response: ApiResponse<T[] | { content?: T[] } | undefined>): ApiResponse<T[]> {
     if (!response.data) {
       return { ...response, data: [] }
@@ -179,7 +223,12 @@ class ApiClient {
   async post<T>(endpoint: string, body?: unknown, init?: RequestInit) {
     const options: RequestInit = { ...init, method: "POST" }
     if (body !== undefined) {
-      options.body = body instanceof FormData ? body : JSON.stringify(body)
+      const processedBody = body instanceof FormData
+        ? body
+        : typeof body === 'string'
+          ? body
+          : JSON.stringify(body);
+      options.body = processedBody
     }
     return this.request<T>(endpoint, options)
   }
@@ -187,7 +236,12 @@ class ApiClient {
   async put<T>(endpoint: string, body?: unknown, init?: RequestInit) {
     const options: RequestInit = { ...init, method: "PUT" }
     if (body !== undefined) {
-      options.body = body instanceof FormData ? body : JSON.stringify(body)
+      const processedBody = body instanceof FormData
+        ? body
+        : typeof body === 'string'
+          ? body
+          : JSON.stringify(body);
+      options.body = processedBody
     }
     return this.request<T>(endpoint, options)
   }
@@ -246,18 +300,21 @@ class ApiClient {
     const response = await this.get<Product[] | { content?: Product[] }>(
       `/api/products${query ? `?${query}` : ""}`,
     )
-    return this.normaliseListResponse<Product>(response)
+    const normalised = this.normaliseListResponse<any>(response)
+    return { ...normalised, data: (normalised.data || []).map((p) => this.normalizeProduct(p)) }
   }
 
   async getProduct(id: number) {
-    return this.get<Product>(`/api/products/${id}`)
+    const res = await this.get<any>(`/api/products/${id}`)
+    return { ...res, data: res.data ? this.normalizeProduct(res.data) : undefined }
   }
 
   async searchProducts(name: string) {
     const response = await this.get<Product[] | { content?: Product[] }>(
       `/api/products/search?name=${encodeURIComponent(name)}`,
     )
-    return this.normaliseListResponse<Product>(response)
+    const normalised = this.normaliseListResponse<any>(response)
+    return { ...normalised, data: (normalised.data || []).map((p) => this.normalizeProduct(p)) }
   }
 
   // Categories endpoints

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import type { Category } from "@/lib/api"
 import { Navigation } from "@/components/ui/navigation"
 import { Footer } from "@/components/ui/footer"
 import { ProductCard } from "@/components/ui/product-card"
@@ -33,27 +34,24 @@ export default function ProductsPage() {
     sortBy: "newest",
     inStock: false,
   })
+  const [categories, setCategories] = useState<Category[]>([])
   const { addItem } = useCart()
   const { toast } = useToast()
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchAll = async () => {
       setIsLoading(true)
-      const response = await apiClient.getProducts({ page: 1, size: 50 })
-      if (response.error) {
-        toast({
-          variant: "destructive",
-          title: "Unable to load artworks",
-          description: response.error,
-        })
-      }
-      const fetchedProducts = response.data ?? []
+      const [catRes, prodRes] = await Promise.all([
+        apiClient.getCategories(),
+        apiClient.getProducts({ page: 1, size: 50 })
+      ])
+      if (catRes.data) setCategories(catRes.data)
+      const fetchedProducts = prodRes.data ?? []
       setProducts(fetchedProducts)
       setFilteredProducts(fetchedProducts)
       setIsLoading(false)
     }
-
-    fetchProducts()
+    fetchAll()
   }, [toast])
 
   useEffect(() => {
@@ -65,13 +63,13 @@ export default function ProductsPage() {
         (product) =>
           product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
           product.artistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.category.name.toLowerCase().includes(searchQuery.toLowerCase()),
+          (categories.find((cat) => cat.id === ((product as any).categoryId ?? (product.category && product.category.id)))?.name.toLowerCase() || "").includes(searchQuery.toLowerCase())
       )
     }
 
     // Apply category filter
     if (filters.categories.length > 0) {
-      filtered = filtered.filter((product) => filters.categories.includes(product.category.id))
+      filtered = filtered.filter((product) => filters.categories.includes((product as any).categoryId ?? (product.category && product.category.id)))
     }
 
     // Apply price range filter

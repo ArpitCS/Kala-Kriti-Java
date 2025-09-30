@@ -28,7 +28,44 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const savedCart = localStorage.getItem("kala_kriti_cart")
     if (savedCart) {
       try {
-        setItems(JSON.parse(savedCart))
+        const parsed: unknown = JSON.parse(savedCart)
+        const safeItems: CartItem[] = Array.isArray(parsed)
+          ? parsed
+              .map((raw: any) => {
+                const quantity = Math.max(1, Number(raw?.quantity ?? 1) || 1)
+                const product = raw?.product ?? {}
+                const price = Number(product?.price ?? product?.amount ?? 0) || 0
+                const stock = Number(product?.stock ?? product?.stockQuantity ?? 0) || 0
+                const id = Number(product?.id ?? 0) || 0
+                const title = product?.title ?? product?.name ?? ""
+                const artistName = product?.artistName ?? product?.artist?.name ?? product?.artist?.username ?? ""
+                const categoryId = Number(product?.categoryId ?? product?.category?.id ?? 0) || 0
+                const categoryName = product?.category?.name ?? product?.categoryName ?? ""
+
+                const normalisedProduct: Product = {
+                  id,
+                  title,
+                  description: String(product?.description ?? ""),
+                  price,
+                  stock,
+                  artistId: Number(product?.artistId ?? product?.artist?.id ?? 0) || 0,
+                  artistName,
+                  category: { id: categoryId, name: String(categoryName) },
+                  imageUrl: product?.imageUrl ?? undefined,
+                  createdAt: String(product?.createdAt ?? new Date().toISOString()),
+                  updatedAt: String(product?.updatedAt ?? product?.createdAt ?? new Date().toISOString()),
+                }
+
+                if (!id) {
+                  return null
+                }
+
+                return { product: normalisedProduct, quantity }
+              })
+              .filter(Boolean) as CartItem[]
+          : []
+
+        setItems(safeItems)
       } catch (error) {
         console.error("Failed to load cart from localStorage:", error)
       }

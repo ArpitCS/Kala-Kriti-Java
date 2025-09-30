@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import type { Category } from "@/lib/api"
 import { useParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -14,33 +15,47 @@ import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft, Heart, Share2, ShoppingBag, User, Package, Minus, Plus } from "lucide-react"
-import { apiClient, type Product } from "@/lib/api"
+import { apiClient, api, type Product } from "@/lib/api"
 import { useCart } from "@/lib/cart"
 import { useToast } from "@/hooks/use-toast"
 
-export default function ProductDetailPage() {
-  const params = useParams()
-  const router = useRouter()
+  export default function ProductPage() {
+    const params = useParams()
+    const router = useRouter()
   const [product, setProduct] = useState<Product | null>(null)
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
+  const [categories, setCategories] = useState<Category[]>([])
   const { addItem } = useCart()
   const { toast } = useToast()
+  const [artistName, setArtistName] = useState<string>("")
 
   const productId = Number.parseInt(params.id as string)
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchAll = async () => {
       setIsLoading(true)
-      const response = await apiClient.getProduct(productId)
-      if (response.data) {
-        const productData = response.data
+      const [catRes, prodRes] = await Promise.all([
+        apiClient.getCategories(),
+        apiClient.getProduct(productId),
+      ])
+      if (catRes.data) setCategories(catRes.data)
+      if (prodRes.data) {
+        const productData = prodRes.data
         setProduct(productData)
-
+        setArtistName(productData.artistName || "")
+        if (!productData.artistName && productData.artistId) {
+          const userRes = await api.getUserById(productData.artistId)
+          if (userRes.data) {
+            const fullName = [userRes.data.firstName, userRes.data.lastName].filter(Boolean).join(" ")
+            setArtistName(fullName || userRes.data.username)
+          }
+        }
         // Fetch related products from same category
+        const relatedCategoryId = (productData as any).categoryId ?? (productData.category && productData.category.id)
         const relatedResponse = await apiClient.getProducts({
-          category: productData.category.id,
+          category: relatedCategoryId,
           size: 4,
         })
         if (relatedResponse.data) {
@@ -49,9 +64,8 @@ export default function ProductDetailPage() {
       }
       setIsLoading(false)
     }
-
     if (productId) {
-      fetchProduct()
+      fetchAll()
     }
   }, [productId])
 
@@ -160,12 +174,12 @@ export default function ProductDetailPage() {
           <div className="space-y-6">
             <div>
               <Badge variant="outline" className="mb-3">
-                {product.category.name}
+                {categories.find((cat) => cat.id === ((product as any).categoryId ?? (product.category && product.category.id)))?.name || "Unknown"}
               </Badge>
               <h1 className="text-3xl font-display font-bold mb-2">{product.title}</h1>
               <div className="text-muted-foreground inline-flex items-center gap-2">
                 <User className="h-4 w-4" />
-                by {product.artistName}
+                by {artistName || "Unknown Artist"}
               </div>
             </div>
 
@@ -246,7 +260,7 @@ export default function ProductDetailPage() {
                 <Separator />
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Category</span>
-                  <Badge variant="outline">{product.category.name}</Badge>
+                  <Badge variant="outline">{categories.find((cat) => cat.id === ((product as any).categoryId ?? (product.category && product.category.id)))?.name || "Unknown"}</Badge>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between text-sm">
