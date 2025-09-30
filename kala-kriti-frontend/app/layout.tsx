@@ -5,10 +5,16 @@ import "./globals.css"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
-import { Inter } from 'next/font/google'
+import { Inter, Playfair_Display } from "next/font/google"
 
 // Load primary font (must assign font loader result to a const at module scope)
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+})
 
 export const metadata: Metadata = {
   title: "Kala-Kriti - Where Art Meets Exceptional Design",
@@ -23,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} antialiased`}>
+  <html lang="en" className={`${inter.variable} ${playfair.variable} antialiased`}>
       <body className="flex min-h-screen flex-col">
         <Header />
         <main className="flex-1">{children}</main>
