@@ -268,13 +268,13 @@ function ArtworksContent() {
             >
               {filteredProducts.map((product) => (
                 <Link key={product.id} href={`/artworks/${product.id}`}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="aspect-square bg-gray-100 relative">
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow p-4">
+                    <div className="aspect-square relative">
                       {product.imageUrl ? (
                         <img
                           src={product.imageUrl || "/placeholder.svg"}
                           alt={product.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover rounded-lg"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">No image</div>

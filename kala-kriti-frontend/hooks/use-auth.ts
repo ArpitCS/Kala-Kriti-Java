@@ -72,6 +72,15 @@ export function useAuth() {
     return () => clearInterval(checkInterval);
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    // Log authentication state
+    console.log("Auth state in hook:", { 
+      isAuthenticated, 
+      userId, 
+      isLoading 
+    })
+  }, [isAuthenticated, userId, isLoading])
+
   return {
     isAuthenticated,
     userRole,

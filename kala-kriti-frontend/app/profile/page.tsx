@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Package, Calendar } from "lucide-react"
@@ -16,6 +14,22 @@ import { useAuth } from "@/hooks/use-auth"
 import { ApiClient } from "@/lib/api"
 import type { User, Order } from "@/lib/types"
 import { useToast } from "@/hooks/use-toast"
+import { ErrorBoundary } from "react-error-boundary"
+
+function ErrorFallback({ error }: { error: Error }) {
+  return (
+    <div className="container mx-auto px-4 py-8 text-red-600 border border-red-300 rounded p-4">
+      <h2 className="text-xl font-bold mb-2">Something went wrong:</h2>
+      <pre className="bg-red-50 p-4 rounded overflow-auto text-sm">{error.message}</pre>
+      <button 
+        onClick={() => window.location.reload()}
+        className="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+      >
+        Try again
+      </button>
+    </div>
+  )
+}
 
 function ProfileContent() {
   const router = useRouter()
@@ -38,30 +52,38 @@ function ProfileContent() {
   })
 
   useEffect(() => {
+    console.log("Auth state:", { isAuthenticated, userId, isAuthLoading })
+    
     if (isAuthLoading) {
       return
     }
 
     if (!isAuthenticated) {
+      console.log("Not authenticated, redirecting to login")
       const target = typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "/"
       router.push(`/auth/login?redirect=${encodeURIComponent(target)}`)
       return
     }
+    
+    console.log("Loading user data")
     loadUserData()
   }, [isAuthenticated, userId, isAuthLoading])
 
   const loadUserData = async () => {
-    if (!userId) return
+    if (!userId) {
+      console.log("No userId available");
+      return;
+    }
 
-    setIsDataLoading(true)
+    setIsDataLoading(true);
     try {
-      const [userData, ordersData] = await Promise.all([
-        ApiClient.get<User>(`/api/users/${userId}`),
-        ApiClient.get<Order[]>(`/api/orders/customer/${userId}`),
-      ])
-
-      setUser(userData)
-      setOrders(ordersData)
+      console.log("Fetching data for user:", userId);
+      
+      // Fetch user data
+      const userData = await ApiClient.get<User>(`/api/users/${userId}`);
+      console.log("User data received:", userData);
+      setUser(userData);
+      
       setFormData({
         firstName: userData.firstName,
         lastName: userData.lastName,
@@ -70,15 +92,53 @@ function ProfileContent() {
         bio: userData.bio || "",
         specialization: userData.specialization || "",
         portfolioUrl: userData.portfolioUrl || "",
-      })
+      });
+      
+      // Fetch orders separately with better error handling
+      try {
+        console.log("Fetching orders for user:", userId);
+        const ordersData = await ApiClient.get<Order[]>(`/api/orders/customer/${userId}`);
+        
+        // Ensure we have a valid array of orders with no duplicates
+        if (Array.isArray(ordersData)) {
+          // Create a Map to deduplicate orders by ID
+          const orderMap = new Map();
+          ordersData.forEach(order => {
+            if (!orderMap.has(order.id)) {
+              // Ensure each order has valid items
+              orderMap.set(order.id, {
+                ...order,
+                items: Array.isArray(order.items) ? order.items : []
+              });
+            }
+          });
+          
+          // Convert map back to array
+          const uniqueOrders = Array.from(orderMap.values());
+          console.log(`Processed ${uniqueOrders.length} unique orders`);
+          setOrders(uniqueOrders);
+        } else {
+          console.warn("Orders data is not an array:", ordersData);
+          setOrders([]);
+        }
+      } catch (orderError) {
+        console.error("Error fetching orders:", orderError);
+        toast({
+          title: "Error loading orders",
+          description: "Your profile was loaded but we couldn't fetch your orders.",
+          variant: "destructive",
+        });
+        setOrders([]);
+      }
     } catch (error) {
+      console.error("Error in loadUserData:", error);
       toast({
         title: "Error loading profile",
         description: "Failed to load your profile. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsDataLoading(false)
+      setIsDataLoading(false);
     }
   }
 
@@ -311,14 +371,31 @@ function ProfileContent() {
                     <Separator className="my-4" />
 
                     <div className="space-y-3">
-                      {order.items.map((item) => (
-                        <div key={item.id} className="flex justify-between text-sm">
-                          <span className="text-gray-600">
-                            {item.productName} × {item.quantity}
-                          </span>
-                          <span className="font-medium">₹{(item.price * item.quantity).toLocaleString()}</span>
-                        </div>
-                      ))}
+                      {(order.items && Array.isArray(order.items) && order.items.length > 0) ? (
+                        order.items.map((item, index) => {
+                          // Ensure item is valid
+                          const safeItem = {
+                            id: item?.id || `item-${index}`,
+                            productId: item?.productId || 0,
+                            productName: item?.productName || `Unknown Product`,
+                            quantity: item?.quantity || 1,
+                            price: item?.price || 0
+                          };
+                          
+                          return (
+                            <div key={safeItem.id} className="flex justify-between text-sm">
+                              <span className="text-gray-600">
+                                {safeItem.productName} × {safeItem.quantity}
+                              </span>
+                              <span className="font-medium">
+                                ₹{(safeItem.price * safeItem.quantity).toLocaleString()}
+                              </span>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="text-sm text-gray-600">No item details available</div>
+                      )}
                     </div>
 
                     <Separator className="my-4" />
@@ -340,8 +417,10 @@ function ProfileContent() {
 
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<div className="container mx-auto px-4 py-8">Loading...</div>}>
-      <ProfileContent />
-    </Suspense>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <Suspense fallback={<div className="container mx-auto px-4 py-8">Loading...</div>}>
+        <ProfileContent />
+      </Suspense>
+    </ErrorBoundary>
   )
 }

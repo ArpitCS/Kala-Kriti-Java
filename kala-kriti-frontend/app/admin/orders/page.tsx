@@ -60,12 +60,14 @@ export default function AdminOrdersPage() {
     try {
       const data = await ApiClient.get<Order[]>("/api/orders")
       setOrders(data)
+      setFilteredOrders(Array.isArray(data) ? data : [])
     } catch (error) {
       toast({
         title: "Error loading orders",
         description: "Failed to load orders. Please try again.",
         variant: "destructive",
       })
+      setFilteredOrders([])
     } finally {
       setIsDataLoading(false)
     }
@@ -179,7 +181,7 @@ export default function AdminOrdersPage() {
             </CardContent>
           </Card>
         ) : (
-          filteredOrders.map((order) => (
+          Array.isArray(filteredOrders) ? filteredOrders.map((order) => (
             <Card key={order.id}>
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
@@ -243,7 +245,7 @@ export default function AdminOrdersPage() {
                 </div>
               </CardContent>
             </Card>
-          ))
+          )) : <p>No orders found</p>
         )}
       </div>
 

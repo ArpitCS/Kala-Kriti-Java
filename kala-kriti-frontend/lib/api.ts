@@ -8,14 +8,20 @@ export interface ApiError {
   status: number
 }
 
-export class ApiClient {
-  private static getAuthHeader(): HeadersInit {
-    if (typeof window === "undefined") return {}
-    const token = localStorage.getItem("auth_token")
-    return token ? { Authorization: `Bearer ${token}` } : {}
-  }
+const getAuthHeader = (): HeadersInit => {
+  if (typeof window === "undefined") return {}
+  const token = localStorage.getItem("auth_token")
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
 
-  static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+// Add this utility function to break circular references in orders data
+const breakCircularReferences = (text: string): string => {
+  // This regex finds circular references in order items and replaces them
+  return text.replace(/"order"\s*:\s*\{[^}]*"items"\s*:\s*\[[^\]]*\][^}]*\}/g, '"order":null');
+};
+
+export const ApiClient = {
+  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     // Check if token needs refresh before making API call
     if (AuthService.isAuthenticated() && AuthService.shouldRefreshToken()) {
       await AuthService.refreshToken();
@@ -24,7 +30,7 @@ export class ApiClient {
     const url = `${API_BASE_URL}${endpoint}`;
     const headers = {
       "Content-Type": "application/json",
-      ...this.getAuthHeader(),
+      ...getAuthHeader(),
       ...options.headers,
     };
     
@@ -40,8 +46,8 @@ export class ApiClient {
           const retryResponse = await fetch(url, {
             ...options,
             headers: {
-              "Content-Type": "application/json",
-              ...this.getAuthHeader(),
+              "Content-Type": "application/json", 
+              ...getAuthHeader(),
               ...options.headers,
             }
           });
@@ -75,27 +81,118 @@ export class ApiClient {
       console.error("[v0] API request failed:", error)
       throw error
     }
-  }
+  },
 
-  static async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: "GET" })
-  }
-
-  static async post<T>(endpoint: string, data: unknown): Promise<T> {
+  async get<T>(url: string): Promise<T> {
+    try {
+      const response = await fetch(`${API_BASE_URL}${url}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...getAuthHeader(),
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+      
+      // Get the response text
+      const text = await response.text();
+      
+      // Special handling for orders endpoint
+      if (url.includes('/orders')) {
+        try {
+          // Break circular references before parsing
+          const cleanText = breakCircularReferences(text);
+          return JSON.parse(cleanText);
+        } catch (parseError) {
+          console.error("Failed to parse orders data:", parseError);
+          // Return empty array as fallback for orders
+          return (url.includes('/orders/customer')) ? [] as unknown as T : {} as T;
+        }
+      }
+      
+      // Normal JSON parsing for other endpoints
+      try {
+        return JSON.parse(text);
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError);
+        throw new Error("Failed to parse API response");
+      }
+    } catch (error) {
+      console.error(`API GET error for ${url}:`, error);
+      throw error;
+    }
+  },
+  
+  async post<T>(endpoint: string, data: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: "POST",
       body: JSON.stringify(data),
     })
-  }
+  },
 
-  static async put<T>(endpoint: string, data: unknown): Promise<T> {
+  async put<T>(endpoint: string, data: unknown): Promise<T> {
     return this.request<T>(endpoint, {
       method: "PUT",
       body: JSON.stringify(data),
     })
-  }
+  },
 
-  static async delete<T>(endpoint: string): Promise<T> {
+  async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: "DELETE" })
+  }
+}
+
+export const fixCircularReferences = (responseText: string): any => {
+  try {
+    // Handle potential JSON parse errors more safely
+    let parsed;
+    try {
+      // First attempt direct parsing
+      parsed = JSON.parse(responseText);
+    } catch (initialError) {
+      console.log("Initial parse failed, trying to clean JSON");
+      
+      // Try to clean the JSON by removing circular references
+      const cleanedText = responseText
+        .replace(/"order":\s*\{[^}]*"items":\s*\[\s*{/g, '"order":null')
+        .replace(/"items"\s*:\s*null/g, '"items":[]');
+      
+      parsed = JSON.parse(cleanedText);
+    }
+    
+    // Ensure orders have valid items arrays
+    if (Array.isArray(parsed)) {
+      // This is an array of orders - deduplicate by ID and normalize
+      const uniqueOrders = [];
+      const orderIds = new Set();
+      
+      for (const order of parsed) {
+        if (!orderIds.has(order.id)) {
+          orderIds.add(order.id);
+          uniqueOrders.push({
+            ...order,
+            items: Array.isArray(order.items) ? order.items : []
+          });
+        }
+      }
+      
+      return uniqueOrders;
+    } 
+    
+    // Single order case
+    if (parsed && typeof parsed === 'object') {
+      return {
+        ...parsed,
+        items: Array.isArray(parsed.items) ? parsed.items : []
+      };
+    }
+    
+    return parsed;
+  } catch (error) {
+    console.error("Failed to process API response:", error);
+    return []; // Return empty array as fallback
   }
 }

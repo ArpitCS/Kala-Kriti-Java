@@ -16,7 +16,7 @@ export default function CartPage() {
 
   const handleCheckout = () => {
     if (!isAuthenticated) {
-      router.push("/auth/login")
+      router.push(`/auth/login?redirect=${encodeURIComponent('/checkout')}`)
       return
     }
     router.push("/checkout")

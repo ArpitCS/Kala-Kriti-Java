@@ -1,50 +1,63 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { CreditCard, Wallet, Building2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Separator } from "@/components/ui/separator"
-import { useCart } from "@/hooks/use-cart"
-import { useAuth } from "@/hooks/use-auth"
-import { ApiClient } from "@/lib/api"
-import type { CreateOrderRequest, PaymentMethod } from "@/lib/types"
-import { useToast } from "@/hooks/use-toast"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CreditCard, Wallet, Building2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Separator } from "@/components/ui/separator";
+import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/use-auth";
+import { ApiClient } from "@/lib/api";
+import type { CreateOrderRequest, PaymentMethod } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CheckoutPage() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const { cart, total, clearCart } = useCart()
-  const { isAuthenticated, userId } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("UPI")
+  // Place ALL hooks at the top - before any conditional logic
+  const { isAuthenticated, userId, userRole, username } = useAuth();
+  const { cart, clearCart } = useCart();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("UPI");
   const [formData, setFormData] = useState({
     shippingAddress: "",
     billingAddress: "",
     sameAsShipping: true,
-  })
+  });
 
+  // Use a single useEffect for all redirect logic
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/auth/login")
-      return
-    }
-    if (cart.length === 0) {
-      router.push("/cart")
-    }
-  }, [isAuthenticated, cart])
+    // Set a small delay to prevent immediate flickering
+    const timer = setTimeout(() => {
+      if (!isAuthenticated) {
+        router.replace("/auth/login");
+        return;
+      }
+
+      if (cart.length === 0) {
+        router.replace("/cart");
+        return;
+      }
+
+      // Only if we pass all checks, set loading to false
+      setIsLoading(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [isAuthenticated, cart, router]);
+
+  // Calculate total amount
+  const total = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!userId) return
+    e.preventDefault();
+    if (!userId) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       // Create order
@@ -60,9 +73,9 @@ export default function CheckoutPage() {
           productName: item.product.name,
           artistId: item.product.artistId,
         })),
-      }
+      };
 
-      const order = await ApiClient.post("/api/orders", orderData)
+      const order = await ApiClient.post("/api/orders", orderData) as { id: string };
 
       // Process payment
       await ApiClient.post("/api/payments/process", {
@@ -72,32 +85,41 @@ export default function CheckoutPage() {
         method: paymentMethod,
         transactionId: `TXN${Date.now()}`,
         gatewayResponse: "Payment successful",
-      })
+      });
 
-      clearCart()
+      clearCart();
       toast({
         title: "Order placed successfully!",
         description: "Thank you for your purchase. You will receive a confirmation email shortly.",
-      })
-      router.push("/profile?tab=orders")
+      });
+      router.push("/profile?tab=orders");
     } catch (error) {
       toast({
         title: "Checkout failed",
         description: "Failed to process your order. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
+  };
+
+  // Show loading state while checks are performed
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-8 flex justify-center items-center min-h-[60vh]">
+        <div className="text-center">
+          <p className="text-lg mb-4">Loading checkout...</p>
+          {/* You could add a spinner here */}
+        </div>
+      </div>
+    );
   }
 
-  if (!isAuthenticated || cart.length === 0) {
-    return null
-  }
-
+  // Only render checkout content when not loading
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">Checkout</h1>
+    <div className="container mx-auto py-8">
+      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
 
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -245,5 +267,5 @@ export default function CheckoutPage() {
         </div>
       </form>
     </div>
-  )
+  );
 }
