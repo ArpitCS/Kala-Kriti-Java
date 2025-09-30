@@ -18,3 +18,19 @@ curl -X POST http://localhost:8080/api/products \
   "categoryId": 1,
   "imageUrl": "https://cdn.example.com/art/abstract-123.jpg"
 }'
+
+curl -X POST http://localhost:8080/api/products \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiQVJUSVNUIiwic3ViIjoiYXJ0aXN0MTIzIiwiaWF0IjoxNzU5MjA3ODM2LCJleHAiOjE3NTkyOTQyMzZ9.li7YDQPvyYjso5QADbULIv0NI9AZ1VQQtxoqPCK1rz8" \
+  -d '{
+    "name": "Sunset Landscape",
+    "description": "Beautiful sunset landscape painting with vibrant colors",
+    "price": 15000.00,
+    "imageUrl": "https://cdn.example.com/art/sunset-landscape.jpg",
+    "artistId": 1,
+    "categoryId": 2,
+    "stockQuantity": 1,
+    "dimensions": "24x18 inches",
+    "medium": "Oil on Canvas",
+    "yearCreated": 2024
+  }'

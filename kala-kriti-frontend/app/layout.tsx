@@ -1,24 +1,19 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter, Playfair_Display } from "next/font/google"
+
 import "./globals.css"
-import { AuthProvider } from "@/lib/auth"
-import { CartProvider } from "@/lib/cart"
-import { Toaster } from "@/components/ui/toaster"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-})
+import { Inter } from 'next/font/google'
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-})
+// Load primary font (must assign font loader result to a const at module scope)
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 
 export const metadata: Metadata = {
-  title: "Kala-Kriti | Art Marketplace",
-  description: "Discover and collect exceptional artworks from talented artists worldwide",
+  title: "Kala-Kriti - Where Art Meets Exceptional Design",
+  description:
+    "Discover extraordinary artworks from talented artists worldwide. Transform your space with pieces that speak to your soul.",
     generator: 'v0.app'
 }
 
@@ -28,14 +23,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable} antialiased`}>
-      <body className="min-h-screen bg-background font-sans text-foreground">
-        <AuthProvider>
-          <CartProvider>
-            {children}
-            <Toaster />
-          </CartProvider>
-        </AuthProvider>
+    <html lang="en" className={`${inter.variable} antialiased`}>
+      <body className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
       </body>
     </html>
   )

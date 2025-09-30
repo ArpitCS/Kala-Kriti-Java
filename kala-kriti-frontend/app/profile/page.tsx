@@ -1,404 +1,347 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
-import Link from "next/link"
+import type React from "react"
 
-import { Navigation } from "@/components/ui/navigation"
-import { Footer } from "@/components/ui/footer"
-import { ProtectedRoute } from "@/components/ui/protected-route"
-import { useAuth } from "@/lib/auth"
-import { apiClient, type Order, type Product } from "@/lib/api"
+import { useState, useEffect, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Package, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowRight, Loader2, Package, ShoppingBag } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { useAuth } from "@/hooks/use-auth"
+import { ApiClient } from "@/lib/api"
+import type { User, Order } from "@/lib/types"
+import { useToast } from "@/hooks/use-toast"
 
-interface ProfileFormState {
-  firstName: string
-  lastName: string
-  email: string
-}
-
-type ProductCache = Record<number, Product>
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(value)
-}
-
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString()
-}
-
-function getStatusBadgeVariant(status: string) {
-  switch (status) {
-    case "DELIVERED":
-    case "COMPLETED":
-      return "default"
-    case "PROCESSING":
-    case "PLACED":
-      return "secondary"
-    case "SHIPPED":
-      return "outline"
-    case "CANCELLED":
-    case "FAILED":
-      return "destructive"
-    default:
-      return "outline"
-  }
-}
-
-export default function ProfilePage() {
-  const { user, updateUser } = useAuth()
-  const [formState, setFormState] = useState<ProfileFormState>({
+function ProfileContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { toast } = useToast()
+  const { isAuthenticated, userId, isLoading: isAuthLoading } = useAuth()
+  const [user, setUser] = useState<User | null>(null)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [isDataLoading, setIsDataLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "profile")
+  const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
+    phoneNumber: "",
+    bio: "",
+    specialization: "",
+    portfolioUrl: "",
   })
-  const [profileError, setProfileError] = useState<string | null>(null)
-  const [ordersError, setOrdersError] = useState<string | null>(null)
-  const [saveError, setSaveError] = useState<string | null>(null)
-  const [isLoadingProfile, setIsLoadingProfile] = useState(true)
-  const [isSavingProfile, setIsSavingProfile] = useState(false)
-  const [isLoadingOrders, setIsLoadingOrders] = useState(true)
-  const [orders, setOrders] = useState<Order[]>([])
-  const [productsById, setProductsById] = useState<ProductCache>({})
-  const productsCacheRef = useRef<ProductCache>({})
 
   useEffect(() => {
-    productsCacheRef.current = productsById
-  }, [productsById])
-
-  useEffect(() => {
-    const initialiseProfile = async () => {
-      setIsLoadingProfile(true)
-      setProfileError(null)
-
-      const response = await apiClient.getCurrentUser()
-      if (response.data) {
-        const currentUser = response.data
-        // Don't call updateUser here to avoid flickering - just set the form state
-        setFormState({
-          firstName: currentUser.firstName,
-          lastName: currentUser.lastName,
-          email: currentUser.email,
-        })
-      } else if (response.error) {
-        setProfileError(response.error)
-      }
-
-      setIsLoadingProfile(false)
+    if (isAuthLoading) {
+      return
     }
 
-    void initialiseProfile()
-  }, []) // Remove updateUser dependency to prevent re-renders
-
-  useEffect(() => {
-    const loadOrders = async () => {
-      if (!user) {
-        setOrders([])
-        setIsLoadingOrders(false)
-        return
-      }
-
-      setIsLoadingOrders(true)
-      setOrdersError(null)
-
-      const response = await apiClient.getCustomerOrders(user.id)
-      if (response.data) {
-        setOrders(response.data)
-
-        const uniqueProductIds = new Set<number>()
-        response.data.forEach((order) => {
-          order.items.forEach((item) => uniqueProductIds.add(item.productId))
-        })
-
-        const missingProductIds = Array.from(uniqueProductIds).filter((id) => !productsCacheRef.current[id])
-
-        if (missingProductIds.length > 0) {
-          const fetchPromises = missingProductIds.map(async (productId) => {
-            const productResponse = await apiClient.getProduct(productId)
-            if (productResponse.data) {
-              return { productId, product: productResponse.data }
-            }
-            return null
-          })
-
-          const fetchedProducts = await Promise.all(fetchPromises)
-          const freshProducts: ProductCache = {}
-          fetchedProducts.forEach((entry) => {
-            if (entry) {
-              freshProducts[entry.productId] = entry.product
-            }
-          })
-
-          if (Object.keys(freshProducts).length > 0) {
-            setProductsById((prev) => ({ ...prev, ...freshProducts }))
-          }
-        }
-      } else if (response.error) {
-        setOrdersError(response.error)
-      }
-
-      setIsLoadingOrders(false)
+    if (!isAuthenticated) {
+      const target = typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : "/"
+      router.push(`/auth/login?redirect=${encodeURIComponent(target)}`)
+      return
     }
+    loadUserData()
+  }, [isAuthenticated, userId, isAuthLoading])
 
-    void loadOrders()
-  }, [user?.id])
+  const loadUserData = async () => {
+    if (!userId) return
 
-  const orderSummaries = useMemo(() => {
-    return orders.map((order) => ({
-      ...order,
-      items: order.items.map((item) => ({
-        ...item,
-        product: productsById[item.productId],
-      })),
-    }))
-  }, [orders, productsById])
+    setIsDataLoading(true)
+    try {
+      const [userData, ordersData] = await Promise.all([
+        ApiClient.get<User>(`/api/users/${userId}`),
+        ApiClient.get<Order[]>(`/api/orders/customer/${userId}`),
+      ])
 
-  const handleInputChange = (field: keyof ProfileFormState, value: string) => {
-    setFormState((prev) => ({ ...prev, [field]: value }))
+      setUser(userData)
+      setOrders(ordersData)
+      setFormData({
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        phoneNumber: userData.phoneNumber || "",
+        bio: userData.bio || "",
+        specialization: userData.specialization || "",
+        portfolioUrl: userData.portfolioUrl || "",
+      })
+    } catch (error) {
+      toast({
+        title: "Error loading profile",
+        description: "Failed to load your profile. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDataLoading(false)
+    }
   }
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    if (!user) return
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!userId) return
 
-    setIsSavingProfile(true)
-    setSaveError(null)
+    setIsSaving(true)
 
-    const response = await apiClient.updateUser(user.id, {
-      firstName: formState.firstName,
-      lastName: formState.lastName,
-      email: formState.email,
-    })
-
-    if (response.data) {
-      updateUser(response.data)
-      setFormState({
-        firstName: response.data.firstName,
-        lastName: response.data.lastName,
-        email: response.data.email,
+    try {
+      await ApiClient.put(`/api/users/${userId}`, formData)
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
       })
-    } else if (response.error) {
-      setSaveError(response.error)
-    } else {
-      setSaveError("Unable to save changes right now. Please try again.")
+      loadUserData()
+    } catch (error) {
+      toast({
+        title: "Update failed",
+        description: "Failed to update your profile. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
     }
+  }
 
-    setIsSavingProfile(false)
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "DELIVERED":
+        return "bg-green-100 text-green-800"
+      case "SHIPPED":
+        return "bg-blue-100 text-blue-800"
+      case "CONFIRMED":
+        return "bg-purple-100 text-purple-800"
+      case "CANCELLED":
+        return "bg-red-100 text-red-800"
+      default:
+        return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  if (isAuthLoading || isDataLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">Loading profile...</div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
   }
 
   return (
-    <ProtectedRoute allowedRoles={["CUSTOMER", "ARTIST", "ADMIN"]}>
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="container mx-auto px-4 py-8">
-          <div className="mb-8 space-y-2">
-            <h1 className="text-3xl font-display font-bold">My Account</h1>
-            <p className="text-muted-foreground">Update your personal information and track your recent orders.</p>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-2">My Account</h1>
+        <p className="text-gray-600">Update your personal information and track your recent orders.</p>
+      </div>
 
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
-              <TabsTrigger value="orders">Orders</TabsTrigger>
-            </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-8">
+          <TabsTrigger value="profile">Profile</TabsTrigger>
+          <TabsTrigger value="orders">Orders</TabsTrigger>
+        </TabsList>
 
-            <TabsContent value="profile">
-              <Card className="border-0 shadow-sm">
-                <CardHeader>
-                  <CardTitle>Personal information</CardTitle>
-                  <CardDescription>Keep your contact details up to date.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {profileError && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{profileError}</AlertDescription>
-                    </Alert>
-                  )}
+        <TabsContent value="profile">
+          <Card>
+            <CardContent className="p-8">
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold mb-2">Personal information</h2>
+                <p className="text-gray-600">Keep your contact details up to date.</p>
+              </div>
 
-                  {isLoadingProfile ? (
-                    <div className="space-y-4">
-                      <Skeleton className="h-12 w-full" />
-                      <Skeleton className="h-12 w-full" />
-                      <Skeleton className="h-12 w-full" />
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First name</Label>
+                    <Input
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last name</Label>
+                    <Input
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phoneNumber">Phone number</Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    value={formData.phoneNumber}
+                    onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  />
+                </div>
+
+                <Separator />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label>Username</Label>
+                    <div className="text-gray-600">{user.username}</div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Role</Label>
+                    <Badge variant="outline">{user.role}</Badge>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Member since</Label>
+                    <div className="text-gray-600">
+                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
                     </div>
-                  ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <Label htmlFor="firstName">First name</Label>
-                          <Input
-                            id="firstName"
-                            value={formState.firstName}
-                            onChange={(event) => handleInputChange("firstName", event.target.value)}
-                            required
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="lastName">Last name</Label>
-                          <Input
-                            id="lastName"
-                            value={formState.lastName}
-                            onChange={(event) => handleInputChange("lastName", event.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
+                  </div>
+                </div>
+
+                {user.role === "ARTIST" && (
+                  <>
+                    <Separator />
+
+                    <div className="space-y-6">
+                      <h3 className="font-semibold">Artist Information</h3>
 
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="bio">Bio</Label>
                         <Input
-                          id="email"
-                          type="email"
-                          value={formState.email}
-                          onChange={(event) => handleInputChange("email", event.target.value)}
-                          required
+                          id="bio"
+                          value={formData.bio}
+                          onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground bg-muted/40 p-4 rounded-md">
-                        <div>
-                          <p className="font-medium text-foreground">Username</p>
-                          <p>{user?.username}</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">Role</p>
-                          <Badge variant="outline" className="mt-1">
-                            {user?.role}
-                          </Badge>
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">Member since</p>
-                          <p>{user?.createdAt ? formatDate(user.createdAt) : "—"}</p>
-                        </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="specialization">Specialization</Label>
+                        <Input
+                          id="specialization"
+                          value={formData.specialization}
+                          onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                        />
                       </div>
 
-                      {saveError && (
-                        <Alert variant="destructive">
-                          <AlertDescription>{saveError}</AlertDescription>
-                        </Alert>
-                      )}
-
-                      <div className="flex justify-end">
-                        <Button type="submit" disabled={isSavingProfile}>
-                          {isSavingProfile ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving
-                            </>
-                          ) : (
-                            "Save changes"
-                          )}
-                        </Button>
+                      <div className="space-y-2">
+                        <Label htmlFor="portfolioUrl">Portfolio URL</Label>
+                        <Input
+                          id="portfolioUrl"
+                          type="url"
+                          value={formData.portfolioUrl}
+                          onChange={(e) => setFormData({ ...formData, portfolioUrl: e.target.value })}
+                        />
                       </div>
-                    </form>
-                  )}
+                    </div>
+                  </>
+                )}
+
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? "Saving..." : "Save changes"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="orders">
+          <div className="space-y-4">
+            {orders.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <div className="max-w-md mx-auto">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <Package className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">No orders yet</h3>
+                    <p className="text-gray-600 mb-4">Start shopping to see your orders here.</p>
+                    <Button onClick={() => router.push("/artworks")}>Browse Artworks</Button>
+                  </div>
                 </CardContent>
               </Card>
-            </TabsContent>
+            ) : (
+              orders.map((order) => (
+                <Card key={order.id}>
+                  <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold">Order #{order.id}</h3>
+                          <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Package className="h-4 w-4" />
+                            {order.items.length} {order.items.length === 1 ? "item" : "items"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-4 md:mt-0 text-right">
+                        <div className="text-2xl font-bold">₹{order.totalAmount.toLocaleString()}</div>
+                      </div>
+                    </div>
 
-            <TabsContent value="orders">
-              <Card className="border-0 shadow-sm">
-                <CardHeader>
-                  <CardTitle>Order history</CardTitle>
-                  <CardDescription>Your most recent purchases appear here.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {ordersError && (
-                    <Alert variant="destructive" className="mb-4">
-                      <AlertDescription>{ordersError}</AlertDescription>
-                    </Alert>
-                  )}
+                    <Separator className="my-4" />
 
-                  {isLoadingOrders ? (
-                    <div className="space-y-4">
-                      {[...Array(3)].map((_, index) => (
-                        <div key={index} className="space-y-3">
-                          <Skeleton className="h-5 w-24" />
-                          <Skeleton className="h-16 w-full" />
+                    <div className="space-y-3">
+                      {order.items.map((item) => (
+                        <div key={item.id} className="flex justify-between text-sm">
+                          <span className="text-gray-600">
+                            {item.productName} × {item.quantity}
+                          </span>
+                          <span className="font-medium">₹{(item.price * item.quantity).toLocaleString()}</span>
                         </div>
                       ))}
                     </div>
-                  ) : orderSummaries.length === 0 ? (
-                    <div className="text-center py-12 space-y-4">
-                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                        <ShoppingBag className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="text-lg font-semibold">No orders yet</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Discover new artworks and start building your collection today.
-                        </p>
-                      </div>
-                      <Button asChild>
-                        <Link href="/products">
-                          Browse artworks
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Link>
-                      </Button>
+
+                    <Separator className="my-4" />
+
+                    <div className="text-sm">
+                      <div className="font-medium mb-1">Shipping Address</div>
+                      <div className="text-gray-600">{order.shippingAddress}</div>
                     </div>
-                  ) : (
-                    <ScrollArea className="h-[420px] pr-4">
-                      <div className="space-y-4">
-                        {orderSummaries.map((order) => (
-                          <div key={order.id} className="rounded-lg border  border-border p-4 space-y-3">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div>
-                                <p className="text-sm text-muted-foreground">Order #{order.id}</p>
-                                <p className="text-sm text-muted-foreground">Placed on {formatDate(order.createdAt)}</p>
-                              </div>
-                              <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
-                            </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
 
-                            <div className="space-y-3">
-                              {order.items.map((item) => {
-                                const product = item.product
-                                return (
-                                  <div key={item.productId} className="flex items-center justify-between gap-3">
-                                    <div className="flex items-center gap-3">
-                                      <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted">
-                                        <Package className="h-5 w-5 text-muted-foreground" />
-                                      </div>
-                                      <div>
-                                        <p className="text-sm font-medium">
-                                          {product?.title || `Artwork #${item.productId}`}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                                      </div>
-                                    </div>
-                                    <p className="text-sm font-semibold">{formatCurrency(item.price * item.quantity)}</p>
-                                  </div>
-                                )
-                              })}
-                            </div>
-
-                            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3 text-sm">
-                              <div className="text-muted-foreground">
-                                Last updated {formatDate(order.updatedAt)}
-                              </div>
-                              <div className="font-semibold">Total {formatCurrency(order.totalAmount)}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-        <Footer />
-      </div>
-    </ProtectedRoute>
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-8">Loading...</div>}>
+      <ProfileContent />
+    </Suspense>
   )
 }
