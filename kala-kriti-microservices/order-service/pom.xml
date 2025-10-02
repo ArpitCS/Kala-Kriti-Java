@@ -14,6 +14,10 @@
     <name>Order Service</name>
     <description>Manage orders for Kala-Kriti</description>
 
+    <properties>
+        <lombok.version>1.18.30</lombok.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
