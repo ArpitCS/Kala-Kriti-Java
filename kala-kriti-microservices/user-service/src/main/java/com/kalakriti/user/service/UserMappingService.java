@@ -1,4 +1,4 @@
-package com.kalakriti.user.config;
+package com.kalakriti.user.service;
 
 import com.kalakriti.user.dto.UserCreateDTO;
 import com.kalakriti.user.dto.UserDTO;
@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserMapperConfig {
+public class UserMappingService {
+
     @Autowired
     private ModelMapper modelMapper;
 
@@ -33,6 +34,8 @@ public class UserMapperConfig {
     }
 
     public User updateUserFromDTO(User existingUser, UserUpdateDTO updateDTO) {
+        // Skip null values to avoid overwriting existing data
+        modelMapper.getConfiguration().setSkipNullEnabled(true);
         modelMapper.map(updateDTO, existingUser);
         return existingUser;
     }

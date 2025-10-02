@@ -1,7 +1,12 @@
 package com.kalakriti.product.controller;
 
+import com.kalakriti.product.dto.ProductCreateDTO;
+import com.kalakriti.product.dto.ProductDTO;
+import com.kalakriti.product.dto.ProductUpdateDTO;
 import com.kalakriti.product.entity.Product;
+import com.kalakriti.product.service.ProductMappingService;
 import com.kalakriti.product.service.ProductService;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,47 +30,60 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private ProductMappingService mappingService;
+
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public List<ProductDTO> getAllProducts() {
+        List<Product> products = productService.getAllProducts();
+        return mappingService.toProductDTOList(products);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         try {
             Product product = productService.getProductById(id);
-            return ResponseEntity.ok(product);
+            ProductDTO productDTO = mappingService.toProductDTO(product);
+            return ResponseEntity.ok(productDTO);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/artist/{artistId}")
-    public List<Product> getProductsByArtist(@PathVariable Long artistId) {
-        return productService.getProductsByArtist(artistId);
+    public List<ProductDTO> getProductsByArtist(@PathVariable Long artistId) {
+        List<Product> products = productService.getProductsByArtist(artistId);
+        return mappingService.toProductDTOList(products);
     }
 
     @GetMapping("/category/{categoryId}")
-    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
-        return productService.getProductsByCategory(categoryId);
+    public List<ProductDTO> getProductsByCategory(@PathVariable Long categoryId) {
+        List<Product> products = productService.getProductsByCategory(categoryId);
+        return mappingService.toProductDTOList(products);
     }
 
     @GetMapping("/search")
-    public List<Product> searchProducts(@RequestParam String name) {
-        return productService.searchProducts(name);
+    public List<ProductDTO> searchProducts(@RequestParam String name) {
+        List<Product> products = productService.searchProducts(name);
+        return mappingService.toProductDTOList(products);
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody ProductCreateDTO productCreateDTO) {
+        Product product = mappingService.toProduct(productCreateDTO);
         Product created = productService.createProduct(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        ProductDTO productDTO = mappingService.toProductDTO(created);
+        return ResponseEntity.status(HttpStatus.CREATED).body(productDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductUpdateDTO productUpdateDTO) {
         try {
-            Product updated = productService.updateProduct(id, product);
-            return ResponseEntity.ok(updated);
+            Product existingProduct = productService.getProductById(id);
+            Product updatedProduct = mappingService.updateProductFromDTO(existingProduct, productUpdateDTO);
+            Product saved = productService.updateProduct(id, updatedProduct);
+            ProductDTO productDTO = mappingService.toProductDTO(saved);
+            return ResponseEntity.ok(productDTO);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }

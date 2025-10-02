@@ -50,4 +50,15 @@ public class OrderService {
         }
         orderRepository.deleteById(id);
     }
+
+    public Order updateOrder(Long id, Order orderDetails) {
+        Order order = getOrderById(id);
+
+        order.setShippingAddress(orderDetails.getShippingAddress());
+        order.setBillingAddress(orderDetails.getBillingAddress());
+        order.setStatus(orderDetails.getStatus() != null ? orderDetails.getStatus() : order.getStatus());
+
+        return orderRepository.save(order);
+    }
+
 }

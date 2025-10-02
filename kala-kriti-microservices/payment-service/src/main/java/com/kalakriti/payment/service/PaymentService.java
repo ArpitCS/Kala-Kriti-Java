@@ -60,4 +60,19 @@ public class PaymentService {
         }
         paymentRepository.deleteById(id);
     }
+
+    public Payment updatePayment(Long id, Payment paymentDetails) {
+        Optional<Payment> optionalPayment = paymentRepository.findById(id);
+        if (optionalPayment.isEmpty()) {
+            throw new IllegalArgumentException("Payment not found");
+        }
+
+        Payment payment = optionalPayment.get();
+        payment.setStatus(paymentDetails.getStatus() != null ? paymentDetails.getStatus() : payment.getStatus());
+        payment.setTransactionId(paymentDetails.getTransactionId() != null ? paymentDetails.getTransactionId() : payment.getTransactionId());
+        payment.setGatewayResponse(paymentDetails.getGatewayResponse() != null ? paymentDetails.getGatewayResponse() : payment.getGatewayResponse());
+
+        return paymentRepository.save(payment);
+    }
+
 }

@@ -1,7 +1,12 @@
 package com.kalakriti.payment.controller;
 
+import com.kalakriti.payment.dto.PaymentCreateDTO;
+import com.kalakriti.payment.dto.PaymentDTO;
+import com.kalakriti.payment.dto.PaymentUpdateDTO;
 import com.kalakriti.payment.entity.Payment;
+import com.kalakriti.payment.service.PaymentMappingService;
 import com.kalakriti.payment.service.PaymentService;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,32 +30,41 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
 
+    @Autowired
+    private PaymentMappingService mappingService;
+
     @GetMapping
-    public List<Payment> getAllPayments() {
-        return paymentService.getAllPayments();
+    public List<PaymentDTO> getAllPayments() {
+        List<Payment> payments = paymentService.getAllPayments();
+        return mappingService.toPaymentDTOList(payments);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Payment> getPaymentById(@PathVariable Long id) {
+    public ResponseEntity<PaymentDTO> getPaymentById(@PathVariable Long id) {
         Optional<Payment> payment = paymentService.getPaymentById(id);
-        return payment.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return payment.map(p -> ResponseEntity.ok(mappingService.toPaymentDTO(p)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/customer/{customerId}")
-    public List<Payment> getPaymentsByCustomer(@PathVariable Long customerId) {
-        return paymentService.getPaymentsByCustomer(customerId);
+    public List<PaymentDTO> getPaymentsByCustomer(@PathVariable Long customerId) {
+        List<Payment> payments = paymentService.getPaymentsByCustomer(customerId);
+        return mappingService.toPaymentDTOList(payments);
     }
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<Payment> getPaymentByOrderId(@PathVariable Long orderId) {
+    public ResponseEntity<PaymentDTO> getPaymentByOrderId(@PathVariable Long orderId) {
         Optional<Payment> payment = paymentService.getPaymentByOrderId(orderId);
-        return payment.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return payment.map(p -> ResponseEntity.ok(mappingService.toPaymentDTO(p)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/process")
-    public ResponseEntity<Payment> processPayment(@RequestBody Payment payment) {
+    public ResponseEntity<PaymentDTO> processPayment(@Valid @RequestBody PaymentCreateDTO paymentCreateDTO) {
+        Payment payment = mappingService.toPayment(paymentCreateDTO);
         Payment processed = paymentService.processPayment(payment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(processed);
+        PaymentDTO paymentDTO = mappingService.toPaymentDTO(processed);
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentDTO);
     }
 
     @PutMapping("/{id}/status")
@@ -58,9 +72,27 @@ public class PaymentController {
         try {
             Payment.PaymentStatus status = Payment.PaymentStatus.valueOf(request.getStatus().toUpperCase());
             Payment updated = paymentService.updatePaymentStatus(id, status);
-            return ResponseEntity.ok(updated);
+            PaymentDTO paymentDTO = mappingService.toPaymentDTO(updated);
+            return ResponseEntity.ok(paymentDTO);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePayment(@PathVariable Long id, @Valid @RequestBody PaymentUpdateDTO paymentUpdateDTO) {
+        try {
+            Optional<Payment> existingPayment = paymentService.getPaymentById(id);
+            if (existingPayment.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Payment updatedPayment = mappingService.updatePaymentFromDTO(existingPayment.get(), paymentUpdateDTO);
+            Payment saved = paymentService.updatePayment(id, updatedPayment);
+            PaymentDTO paymentDTO = mappingService.toPaymentDTO(saved);
+            return ResponseEntity.ok(paymentDTO);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 

@@ -1,8 +1,12 @@
 package com.kalakriti.user.controller;
 
+import com.kalakriti.user.dto.UserCreateDTO;
+import com.kalakriti.user.dto.UserDTO;
 import com.kalakriti.user.entity.User;
+import com.kalakriti.user.service.UserMappingService;
 import com.kalakriti.user.service.UserService;
 import com.kalakriti.user.util.JwtUtil;
+import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +26,9 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserMappingService mappingService;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -45,8 +52,11 @@ public class AuthController {
         User user = optionalUser.get();
         String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
 
+        // Create response with user DTO (excluding password)
+        UserDTO userDTO = mappingService.toUserDTO(user);
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
+        response.put("user", userDTO);
         response.put("role", user.getRole());
         response.put("username", user.getUsername());
         response.put("userId", user.getId());
@@ -55,10 +65,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
+    public ResponseEntity<?> register(@Valid @RequestBody UserCreateDTO userCreateDTO) {
         try {
+            User user = mappingService.toUser(userCreateDTO);
             User createdUser = userService.createUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+            UserDTO userDTO = mappingService.toUserDTO(createdUser);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
         } catch (IllegalArgumentException ex) {
             Map<String, Object> error = new HashMap<>();
             error.put("message", ex.getMessage());

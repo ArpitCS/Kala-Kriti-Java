@@ -1,7 +1,12 @@
 package com.kalakriti.order.controller;
 
+import com.kalakriti.order.dto.OrderCreateDTO;
+import com.kalakriti.order.dto.OrderDTO;
+import com.kalakriti.order.dto.OrderUpdateDTO;
 import com.kalakriti.order.entity.Order;
+import com.kalakriti.order.service.OrderMappingService;
 import com.kalakriti.order.service.OrderService;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,30 +29,38 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private OrderMappingService mappingService;
+
     @GetMapping
-    public List<Order> getAllOrders() {
-        return orderService.getAllOrders();
+    public List<OrderDTO> getAllOrders() {
+        List<Order> orders = orderService.getAllOrders();
+        return mappingService.toOrderDTOList(orders);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
         try {
             Order order = orderService.getOrderById(id);
-            return ResponseEntity.ok(order);
+            OrderDTO orderDTO = mappingService.toOrderDTO(order);
+            return ResponseEntity.ok(orderDTO);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/customer/{customerId}")
-    public List<Order> getOrdersByCustomer(@PathVariable Long customerId) {
-        return orderService.getOrdersByCustomer(customerId);
+    public List<OrderDTO> getOrdersByCustomer(@PathVariable Long customerId) {
+        List<Order> orders = orderService.getOrdersByCustomer(customerId);
+        return mappingService.toOrderDTOList(orders);
     }
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+    public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderCreateDTO orderCreateDTO) {
+        Order order = mappingService.toOrder(orderCreateDTO);
         Order createdOrder = orderService.createOrder(order);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+        OrderDTO orderDTO = mappingService.toOrderDTO(createdOrder);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderDTO);
     }
 
     @PutMapping("/{id}/status")
@@ -55,9 +68,23 @@ public class OrderController {
         try {
             Order.OrderStatus status = Order.OrderStatus.valueOf(request.getStatus().toUpperCase());
             Order updated = orderService.updateOrderStatus(id, status);
-            return ResponseEntity.ok(updated);
+            OrderDTO orderDTO = mappingService.toOrderDTO(updated);
+            return ResponseEntity.ok(orderDTO);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateOrder(@PathVariable Long id, @Valid @RequestBody OrderUpdateDTO orderUpdateDTO) {
+        try {
+            Order existingOrder = orderService.getOrderById(id);
+            Order updatedOrder = mappingService.updateOrderFromDTO(existingOrder, orderUpdateDTO);
+            Order saved = orderService.updateOrder(id, updatedOrder);
+            OrderDTO orderDTO = mappingService.toOrderDTO(saved);
+            return ResponseEntity.ok(orderDTO);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 

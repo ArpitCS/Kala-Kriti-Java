@@ -1,6 +1,9 @@
 package com.kalakriti.user.controller;
 
+import com.kalakriti.user.dto.UserDTO;
+import com.kalakriti.user.dto.UserUpdateDTO;
 import com.kalakriti.user.entity.User;
+import com.kalakriti.user.service.UserMappingService;
 import com.kalakriti.user.service.UserService;
 import java.util.List;
 import java.util.Optional;
@@ -24,27 +27,38 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserMappingService mappingService;
+
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return mappingService.toUserDTOList(users);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return user.map(u -> ResponseEntity.ok(mappingService.toUserDTO(u)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/role/{role}")
-    public List<User> getUsersByRole(@PathVariable User.UserRole role) {
-        return userService.getUsersByRole(role);
+    public List<UserDTO> getUsersByRole(@PathVariable User.UserRole role) {
+        List<User> users = userService.getUsersByRole(role);
+        return mappingService.toUserDTOList(users);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
         try {
-            User updatedUser = userService.updateUser(id, user);
-            return ResponseEntity.ok(updatedUser);
+            User existingUser = userService.getUserById(id)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            User updatedUser = mappingService.updateUserFromDTO(existingUser, userUpdateDTO);
+            User savedUser = userService.updateUser(id, updatedUser);
+
+            return ResponseEntity.ok(mappingService.toUserDTO(savedUser));
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
