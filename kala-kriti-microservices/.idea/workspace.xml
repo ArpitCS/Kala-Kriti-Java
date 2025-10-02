@@ -7,76 +7,11 @@
     <list default="true" id="c69fd25d-eda3-488a-9e15-4b44764759a3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/com/kalakriti/gateway/ApiGatewayApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/com/kalakriti/gateway/ApiGatewayApplication.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/com/kalakriti/gateway/config/ModelMapperConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/com/kalakriti/gateway/config/ModelMapperConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/com/kalakriti/gateway/config/SecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/com/kalakriti/gateway/config/SecurityConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/com/kalakriti/gateway/filter/JwtAuthenticationFilter.class" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/com/kalakriti/gateway/filter/JwtAuthenticationFilter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/com/kalakriti/gateway/util/JwtUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/target/classes/com/kalakriti/gateway/util/JwtUtil.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config-service/target/classes/com/kalakriti/config/ConfigServiceApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/config-service/target/classes/com/kalakriti/config/ConfigServiceApplication.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discovery-service/target/classes/com/kalakriti/discovery/DiscoveryServiceApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/discovery-service/target/classes/com/kalakriti/discovery/DiscoveryServiceApplication.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/order-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/config/ModelMapperConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/config/ModelMapperConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/controller/OrderController$StatusUpdateRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/controller/OrderController$StatusUpdateRequest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/controller/OrderController.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/controller/OrderController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/dto/OrderCreateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/dto/OrderCreateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/dto/OrderDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/dto/OrderDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/dto/OrderItemCreateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/dto/OrderItemCreateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/dto/OrderItemDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/dto/OrderItemDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/dto/OrderUpdateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/dto/OrderUpdateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/service/OrderMappingService.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/service/OrderMappingService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/service/OrderService.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/service/OrderService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/payment-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/PaymentServiceApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/PaymentServiceApplication.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/config/ModelMapperConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/config/ModelMapperConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/controller/PaymentController$StatusUpdateRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/controller/PaymentController$StatusUpdateRequest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/controller/PaymentController.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/controller/PaymentController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/dto/PaymentCreateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/dto/PaymentCreateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/dto/PaymentDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/dto/PaymentDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/dto/PaymentUpdateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/dto/PaymentUpdateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/entity/Payment$PaymentMethod.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/entity/Payment$PaymentMethod.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/entity/Payment$PaymentStatus.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/entity/Payment$PaymentStatus.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/entity/Payment.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/entity/Payment.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/repository/PaymentRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/repository/PaymentRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/service/PaymentMappingService.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/service/PaymentMappingService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/service/PaymentService.class" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/target/classes/com/kalakriti/payment/service/PaymentService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/product-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/ProductServiceApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/ProductServiceApplication.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/config/ModelMapperConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/config/ModelMapperConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/controller/CategoryController.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/controller/CategoryController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/controller/ProductController.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/controller/ProductController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/dto/CategoryCreateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/dto/CategoryCreateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/dto/CategoryDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/dto/CategoryDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/dto/ProductCreateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/dto/ProductCreateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/dto/ProductDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/dto/ProductDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/dto/ProductUpdateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/dto/ProductUpdateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/entity/Category.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/entity/Category.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/entity/Product$ProductStatus.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/entity/Product$ProductStatus.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/entity/Product.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/entity/Product.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/repository/CategoryRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/repository/CategoryRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/repository/ProductRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/repository/ProductRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/service/CategoryService.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/service/CategoryService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/service/ProductMappingService.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/service/ProductMappingService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/service/ProductService.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/service/ProductService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/user-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/UserServiceApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/UserServiceApplication.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/config/ModelMapperConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/config/ModelMapperConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/config/SecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/config/SecurityConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/AuthController$LoginRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/AuthController$LoginRequest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/AuthController.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/AuthController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/UserController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/dto/LoginRequestDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/dto/LoginRequestDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/dto/LoginResponseDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/dto/LoginResponseDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/dto/UserCreateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/dto/UserCreateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/dto/UserDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/dto/UserDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/dto/UserUpdateDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/dto/UserUpdateDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/entity/User$UserRole.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/entity/User$UserRole.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/entity/User$UserStatus.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/entity/User$UserStatus.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/entity/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/entity/User.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/repository/UserRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/repository/UserRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/service/UserMappingService.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/service/UserMappingService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/service/UserService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/util/JwtUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/util/JwtUtil.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,7 +55,7 @@
     "Spring Boot.API Gateway.executor": "Run",
     "Spring Boot.ConfigServiceApplication.executor": "Run",
     "Spring Boot.DiscoveryServiceApplication.executor": "Run",
-    "Spring Boot.OrderServiceApplication.executor": "Run",
+    "Spring Boot.OrderServiceApplication.executor": "Debug",
     "Spring Boot.PaymentServiceApplication.executor": "Run",
     "Spring Boot.ProductServiceApplication.executor": "Run",
     "Spring Boot.UserServiceApplication.executor": "Run",
@@ -132,10 +67,15 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "run.configurations.included.in.services": "true",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
+    "settings.editor.splitter.proportion": "0.24464832",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="ReactorSettings">
+    <option name="notificationShown" value="true" />
+  </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.kalakriti.gateway.config" />
@@ -242,7 +182,7 @@
       <option name="presentableId" value="Default" />
       <updated>1759064907513</updated>
       <workItem from="1759064908896" duration="843000" />
-      <workItem from="1759398593888" duration="4306000" />
+      <workItem from="1759398593888" duration="5754000" />
     </task>
     <servers />
   </component>

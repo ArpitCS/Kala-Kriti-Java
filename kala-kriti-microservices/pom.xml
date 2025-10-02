@@ -34,7 +34,6 @@
         <spring-cloud.version>2023.0.1</spring-cloud.version>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.source>${java.version}</maven.compiler.source>
-        <lombok.version>1.18.30</lombok.version>
     </properties>
 
     <dependencyManagement>
@@ -45,11 +44,6 @@
                 <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>${lombok.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
