@@ -4,35 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c69fd25d-eda3-488a-9e15-4b44764759a3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/order-service/src/main/java/com/kalakriti/order/service/OrderMappingService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/product-service/src/main/java/com/kalakriti/product/service/ProductMappingService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/kalakriti/user/dto/LoginRequestDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/kalakriti/user/dto/LoginResponseDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/user-service/src/main/java/com/kalakriti/user/service/UserMappingService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/kalakriti/order/config/ModelMapperConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/kalakriti/order/config/ModelMapperConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/kalakriti/order/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/kalakriti/order/controller/OrderController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/com/kalakriti/order/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/com/kalakriti/order/service/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/config/ModelMapperConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/config/ModelMapperConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/controller/OrderController$StatusUpdateRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/controller/OrderController$StatusUpdateRequest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/controller/OrderController.class" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/target/classes/com/kalakriti/order/controller/OrderController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/kalakriti/product/config/ModelMapperConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/src/main/java/com/kalakriti/product/config/ModelMapperConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/kalakriti/product/controller/CategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/src/main/java/com/kalakriti/product/controller/CategoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/kalakriti/product/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/src/main/java/com/kalakriti/product/controller/ProductController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/config/ModelMapperConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/config/ModelMapperConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/controller/CategoryController.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/controller/CategoryController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/controller/ProductController.class" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/target/classes/com/kalakriti/product/controller/ProductController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/kalakriti/user/config/ModelMapperConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/kalakriti/user/config/ModelMapperConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/kalakriti/user/config/UserMapperConfig.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/kalakriti/user/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/kalakriti/user/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/src/main/java/com/kalakriti/user/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/src/main/java/com/kalakriti/user/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/config/ModelMapperConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/config/ModelMapperConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/config/UserMapperConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/AuthController$LoginRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/AuthController$LoginRequest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/AuthController.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/AuthController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/user-service/target/classes/com/kalakriti/user/controller/UserController.class" afterDir="false" />
-    </list>
+    <list default="true" id="c69fd25d-eda3-488a-9e15-4b44764759a3" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -197,7 +169,7 @@
       <option name="presentableId" value="Default" />
       <updated>1759064907513</updated>
       <workItem from="1759064908896" duration="843000" />
-      <workItem from="1759398593888" duration="3275000" />
+      <workItem from="1759398593888" duration="3937000" />
     </task>
     <servers />
   </component>
