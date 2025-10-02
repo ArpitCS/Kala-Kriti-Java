@@ -1,6 +1,6 @@
 package com.kalakriti.product.repository;
 
-import com.kalakriti.product.model.Product;
+import com.kalakriti.product.entity.Product;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

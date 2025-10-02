@@ -1,6 +1,6 @@
 package com.kalakriti.user.controller;
 
-import com.kalakriti.user.model.User;
+import com.kalakriti.user.entity.User;
 import com.kalakriti.user.service.UserService;
 import com.kalakriti.user.util.JwtUtil;
 import java.util.HashMap;

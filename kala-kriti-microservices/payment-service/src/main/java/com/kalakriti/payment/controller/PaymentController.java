@@ -1,6 +1,6 @@
 package com.kalakriti.payment.controller;
 
-import com.kalakriti.payment.model.Payment;
+import com.kalakriti.payment.entity.Payment;
 import com.kalakriti.payment.service.PaymentService;
 import java.util.List;
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package com.kalakriti.product.service;
 
-import com.kalakriti.product.model.Category;
+import com.kalakriti.product.entity.Category;
 import com.kalakriti.product.repository.CategoryRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

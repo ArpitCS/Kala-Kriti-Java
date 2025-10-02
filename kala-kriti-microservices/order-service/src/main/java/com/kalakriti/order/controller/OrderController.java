@@ -1,6 +1,6 @@
 package com.kalakriti.order.controller;
 
-import com.kalakriti.order.model.Order;
+import com.kalakriti.order.entity.Order;
 import com.kalakriti.order.service.OrderService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;

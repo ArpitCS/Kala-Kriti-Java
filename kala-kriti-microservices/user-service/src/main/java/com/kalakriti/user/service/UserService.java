@@ -1,6 +1,6 @@
 package com.kalakriti.user.service;
 
-import com.kalakriti.user.model.User;
+import com.kalakriti.user.entity.User;
 import com.kalakriti.user.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;

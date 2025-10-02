@@ -1,6 +1,6 @@
 package com.kalakriti.user.repository;
 
-import com.kalakriti.user.model.User;
+import com.kalakriti.user.entity.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

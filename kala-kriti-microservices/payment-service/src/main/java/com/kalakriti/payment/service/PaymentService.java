@@ -1,6 +1,6 @@
 package com.kalakriti.payment.service;
 
-import com.kalakriti.payment.model.Payment;
+import com.kalakriti.payment.entity.Payment;
 import com.kalakriti.payment.repository.PaymentRepository;
 import java.util.List;
 import java.util.Optional;

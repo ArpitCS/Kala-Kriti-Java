@@ -1,6 +1,6 @@
 package com.kalakriti.payment.repository;
 
-import com.kalakriti.payment.model.Payment;
+import com.kalakriti.payment.entity.Payment;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
